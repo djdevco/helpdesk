@@ -162,6 +162,93 @@
             ]]>
             </field>
         </record>
+        <record id="rating_template" model="mail.template">
+            <field name="name">Helpdesk Request rating email</field>
+            <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket" />
+            <field name="email_from">${object.company_id.partner_id.email}</field>
+            <field
+                name="email_cc"
+            >${not object.partner_id and object.partner_email or ''|safe},</field>
+            <field name="subject">How did we do on ticket #${object.number}?</field>
+            <field name="partner_to">${object.partner_id.id}</field>
+            <field name="auto_delete" eval="False" />
+            <field name="lang">${object.partner_id.lang}</field>
+            <field
+                name="body_html"
+            ><![CDATA[<html>
+                <head></head>
+                <body style="margin: 0; padding: 0;">
+                <table border="0" width="100%" cellpadding="0" bgcolor="#ededed" style="padding: 20px; background-color: #ededed; border-collapse:separate;">
+                    <tbody>
+                      <!-- HEADER -->
+                      <tr>
+                        <td align="center" style="min-width: 590px;">
+                          <table width="590" border="0" cellpadding="0" bgcolor="#875A7B" style="min-width: 590px; background-color: rgb(135,90,123); padding: 20px; border-collapse:separate;">
+                            <tr>
+                              <td valign="middle" align="right">
+                                <img src="/logo.png?company=${object.company_id}" style="padding: 0px; margin: 0px; height: auto; width: 80px;">
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- CONTENT -->
+                      <tr>
+                        <td align="center" style="min-width: 590px;">
+                          <table width="590" border="0" cellpadding="0" bgcolor="#ffffff" style="min-width: 590px; background-color: rgb(255, 255, 255); padding: 20px; border-collapse:separate;">
+                            <tbody>
+                            <tr>
+                              <td colspan="3" valign="top" style="font-family:Arial,Helvetica,sans-serif; color: #555; font-size: 14px;">
+                                <p>Hello ${object.user_id.name},</p>
+                                <p>We would like to request your feedback on how we handled your recent ticket #${object.number}.</p>
+                              </td>
+                              </tr>
+                                  <td>
+                                    <td>
+                                        <a href="/rating/${access_token}/10">
+                                            <img alt="Satisfied" src="/rating/static/src/img/rating_10.png" title="Satisfied"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="/rating/${access_token}/5">
+                                            <img alt="Not satisfied" src="/rating/static/src/img/rating_5.png" title="Not satisfied"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="/rating/${access_token}/1">
+                                            <img alt="Highly Dissatisfied" src="/rating/static/src/img/rating_1.png" title="Highly Dissatisfied"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- FOOTER -->
+                      <tr>
+                        <td align="center" style="min-width: 590px;">
+                          <table width="590" border="0" cellpadding="0" bgcolor="#875A7B" style="min-width: 590px; background-color: rgb(135,90,123); padding: 20px; border-collapse:separate;">
+                            <tr>
+                              <td valign="middle" align="left" style="color: #fff; padding-top: 10px; padding-bottom: 10px; font-size: 12px;">
+                                ${object.company_id.phone}
+                              </td>
+                              <td valign="middle" align="left" style="color: #fff; padding-top: 10px; padding-bottom: 10px; font-size: 12px;">
+                                ${object.company_id.email}
+                              </td>
+                              <td valign="middle" align="left" style="color: #fff; padding-top: 10px; padding-bottom: 10px; font-size: 12px;">
+                                ${object.company_id.website}
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+                </body>
+                </html>
+            ]]>
+            </field>
+        </record>
         <!-- Sequence -->
         <record id="helpdesk_ticket_sequence" model="ir.sequence">
             <field name="name">Helpdesk Ticket Sequence</field>
@@ -199,6 +286,7 @@
             <field name="closed">True</field>
             <field name="fold">True</field>
             <field name="mail_template_id" ref="helpdesk_mgmt.closed_ticket_template" />
+            <field name="template_mail_template_id" ref="helpdesk_mgmt.rating_template" />
             <field name="company_id" />
         </record>
         <record id="helpdesk_ticket_stage_cancelled" model="helpdesk.ticket.stage">

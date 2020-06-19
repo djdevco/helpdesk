@@ -17,7 +17,15 @@ class HelpdeskTicketStage(models.Model):
         string="Email Template",
         domain=[("model", "=", "helpdesk.ticket")],
         help="If set an email will be sent to the "
-        "customer when the ticket"
+        "customer when the ticket "
+        "reaches this step.",
+    )
+    rating_mail_template_id = fields.Many2one(
+        comodel_name="mail.template",
+        string="Ratings Email Template",
+        domain=[("model", "=", "helpdesk.ticket")],
+        help="If set an email will be sent to the "
+        "customer to request a rating when the ticket"
         "reaches this step.",
     )
     fold = fields.Boolean(

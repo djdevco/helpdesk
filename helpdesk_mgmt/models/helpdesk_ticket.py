@@ -8,7 +8,7 @@ class HelpdeskTicket(models.Model):
     _rec_name = "number"
     _order = "number desc"
     _mail_post_access = "read"
-    _inherit = ["mail.thread.cc", "mail.activity.mixin"]
+    _inherit = ["mail.thread.cc", "mail.activity.mixin", "rating.mixin"]
 
     def _get_default_stage_id(self):
         return self.env["helpdesk.ticket.stage"].search([], limit=1).id
@@ -158,6 +158,12 @@ class HelpdeskTicket(models.Model):
         for ticket in self:
             if vals.get("user_id"):
                 ticket.send_user_mail()
+
+        # rating on stage
+        if 'stage_id' in vals and vals.get('stage_id'):
+            #self.filtered(lambda x: x.project_id.rating_status == 'stage')._send_task_rating_mail(force_send=True)
+            self._send_task_rating_mail(force_send=True)
+
         return res
 
     def action_duplicate_tickets(self):
@@ -251,3 +257,27 @@ class HelpdeskTicket(models.Model):
             # imply modifying followers
             pass
         return recipients
+
+    # ---------------------------------------------------
+    # Rating business
+    # ---------------------------------------------------
+
+    def _send_task_rating_mail(self, force_send=False):
+        for ticket in self:
+            rating_template = ticket.stage_id.rating_mail_template_id
+            if rating_template:
+                ticket.rating_send_request(rating_template, lang=ticket.partner_id.lang, force_send=force_send)
+
+    """
+    def rating_get_partner_id(self):
+        res = super().rating_get_partner_id()
+        if not res and self.project_id.partner_id:
+            return self.project_id.partner_id
+        return res
+
+    def rating_apply(self, rate, token=None, feedback=None, subtype=None):
+        return super().rating_apply(rate, token=token, feedback=feedback, subtype="project.mt_task_rating")
+
+    def _rating_get_parent_field_name(self):
+        return 'project_id'
+    """
